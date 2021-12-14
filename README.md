@@ -1,2 +1,2 @@
 # Chatbot
-Repository for a project of Chatbot in python
+Repository for a project of a Chatbot in python
