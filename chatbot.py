@@ -2,11 +2,13 @@ import json
 import string
 import random
 import nltk
+from nltk.util import pr
 import numpy as np
 from nltk.stem import WordNetLemmatizer
 import tensorflow as tf
 from tensorflow.keras import Sequential
 from tensorflow.keras.layers import Dense, Dropout
+from tensorflow.python.keras.backend import print_tensor
 nltk.download("punkt")
 nltk.download("wordnet")
 
@@ -39,6 +41,10 @@ data = {"intents": [
              {"tag": "goodbye",
               "patterns": [ "bye", "Salut", "see ya", "adios", "cya"],
               "responses": ["C'était sympa de te parler", "à plus tard", "On se reparle très vite!"]
+             },
+             {"tag": "gout_couleur",
+             "patterns":["Quel est ta couleur préféré?", "Quel couleur préfères tu?", "Quel est ta couleur fétiche?", "Quel couleur aimes tu?"],
+             "responses": ["Ma couleur préférée est le vert !", "J'adore le bleu", "J'aime beaucoup le rouge"]
              }
 ]}
 
@@ -113,6 +119,7 @@ def clean_text(text):
   tokens = nltk.word_tokenize(text)
   tokens = [lemmatizer.lemmatize(word) for word in tokens]
   return tokens
+
 def bag_of_words(text, vocab):
   tokens = clean_text(text)
   bow = [0] * len(vocab)
@@ -121,6 +128,7 @@ def bag_of_words(text, vocab):
       if word == w:
         bow[idx] = 1
   return np.array(bow)
+
 def pred_class(text, vocab, labels):
   bow = bag_of_words(text, vocab)
   result = model.predict(np.array([bow]))[0]
@@ -131,18 +139,27 @@ def pred_class(text, vocab, labels):
   for r in y_pred:
     return_list.append(labels[r[0]])
   return return_list
-def get_response(intents_list, intents_json):
+
+def get_response(intents_list, intents_json, j):
   tag = intents_list[0]
   list_of_intents = intents_json["intents"]
   for i in list_of_intents:
     if i["tag"] == tag:
-      result = random.choice(i["responses"])
-      break
+      if j == 0 and i["tag"] == "goodbye":
+        #print(list_of_intents[0]["responses"])
+        result = random.choice(list_of_intents[0]["responses"])
+        break
+      else:
+        result = random.choice(i["responses"])
+        break
   return result
 
+i = 0
   # lancement du chatbot
 while True:
     message = input("")
     intents = pred_class(message, words, classes)
-    result = get_response(intents, data)
+    result = get_response(intents, data, i)
+    i+=1
+    print(i)
     print(result)
