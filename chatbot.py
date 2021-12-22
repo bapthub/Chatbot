@@ -145,8 +145,8 @@ def get_response(intents_list, intents_json, j):
   list_of_intents = intents_json["intents"]
   for i in list_of_intents:
     if i["tag"] == tag:
+      #pour ne pas répondre aurevoir à un salut en premier message
       if j == 0 and i["tag"] == "goodbye":
-        #print(list_of_intents[0]["responses"])
         result = random.choice(list_of_intents[0]["responses"])
         break
       else:
